@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="bg">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Тест – ограничени пространства</title>
+<style>
+body{margin:0;background:#f4f6f8;color:#1f2937;font-family:Arial,sans-serif}
+.wrap{max-width:820px;margin:auto;padding:24px 16px 48px}
+h1{text-align:center;font-size:28px;margin-bottom:6px}.sub{text-align:center;color:#667085}
+.card{background:#fff;padding:22px;border-radius:18px;box-shadow:0 10px 28px rgba(0,0,0,.08);margin-top:18px}
+.note{background:#fff7ed;border-left:5px solid #d97706;padding:13px;border-radius:9px;color:#7c2d12}
+.progress{height:10px;background:#e5e7eb;border-radius:999px;overflow:hidden;margin:14px 0 18px}.bar{height:100%;background:#d97706}
+.q{font-size:21px;font-weight:700;margin:10px 0 18px}.opts{display:grid;gap:10px}
+.opt{padding:14px;border:1px solid #d0d5dd;border-radius:12px;background:#f8fafc;text-align:left;font-size:16px;font-weight:600;cursor:pointer}
+.opt.sel{border-color:#d97706;background:#fff7ed}.nav{display:flex;justify-content:space-between;gap:12px;margin-top:18px}
+button{border:0;border-radius:12px;padding:13px 17px;font-size:16px;font-weight:700;cursor:pointer}
+.prev{background:#e5e7eb}.next,.again{background:#d97706;color:#fff}.next:disabled{opacity:.45}
+.hidden{display:none}.status{text-align:center;font-size:30px;font-weight:800}.pass{color:#166534}.fail{color:#b91c1c}
+.big{text-align:center;font-size:50px;font-weight:800;color:#b45309;margin-top:8px}.metrics{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin:18px 0}
+.metric{text-align:center;border:1px solid #d0d5dd;border-radius:12px;padding:13px}.metric b{font-size:23px;display:block}
+.item{border:1px solid #fecaca;background:#fffafa;border-radius:12px;padding:15px;margin:12px 0}.rq{font-weight:700}
+.yours{color:#b91c1c;margin-top:8px}.right{color:#166534;font-weight:700;margin-top:6px}.why{color:#475467;margin-top:7px;font-size:14px}
+.footer{text-align:center;color:#667085;font-size:13px;margin-top:18px}.again{width:100%;margin-top:18px}
+@media(max-width:560px){h1{font-size:23px}.q{font-size:19px}.metrics{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<div class="wrap">
+<h1>Тест по безопасност при работа в ограничени пространства</h1>
+<p class="sub">Всеки въпрос има само един верен отговор.</p>
+
+<section id="quiz" class="card">
+<div class="note">Тестът е издържан при най-малко 12 верни отговора от 15 (80%).</div>
+<p id="count"></p><div class="progress"><div id="bar" class="bar"></div></div>
+<div id="q" class="q"></div><div id="opts" class="opts"></div>
+<div class="nav"><button id="prev" class="prev">Назад</button><button id="next" class="next" disabled>Напред</button></div>
+</section>
+
+<section id="result" class="card hidden">
+<div id="status" class="status"></div><div id="big" class="big"></div><p id="pct" class="sub"></p>
+<div class="metrics"><div class="metric"><b id="good"></b>Верни</div><div class="metric"><b id="bad"></b>Грешни</div><div class="metric"><b id="per"></b>Резултат</div></div>
+<h2>Сгрешени въпроси</h2><div id="review"></div>
+<button id="again" class="again">Направи теста отново</button>
+</section>
+<div class="footer">СТМ „Медико“ ЕООД</div>
+</div>
+<script>
+const Q=[{"q": "Кое от изброените е ограничено пространство?", "o": ["производствено хале с отворени врати", "резервоар с люк за влизане", "склад с товарна рампа", "офис без прозорци"], "c": 1, "w": "Ограничено влизане/излизане, не е за постоянен престой, възможна опасна атмосфера."}, {"q": "Кога се счита, че работник е влязъл в ограничено пространство?", "o": ["когато главата (зоната на дишане) или горната част на тялото премине отвора", "само когато цялото тяло е вътре", "когато е на по-малко от 2 м от отвора", "когато е отворил люка"], "c": 0, "w": "Опасността идва от атмосферата – определяща е зоната на дишане."}, {"q": "Необходимо ли е разрешение за кратко влизане „само за оглед“?", "o": ["не, ако влизането е под 5 минути", "не, ако резервоарът е изолиран", "да – разрешение се изисква за всяко влизане, включително за оглед", "не, ако има наблюдаващ"], "c": 2, "w": "Реален случай: оценител загива при оглед на изолиран, но неизмерен резервоар."}, {"q": "Какъв е правилният ред на измерване на атмосферата?", "o": ["токсични газове → запалими газове → кислород", "кислород → запалими газове → токсични газове", "запалими газове → кислород → токсични газове", "редът няма значение"], "c": 1, "w": "Показанията за запалими газове зависят от съдържанието на кислород."}, {"q": "Какво е минималното допустимо съдържание на кислород за влизане без изолиращ дихателен апарат?", "o": ["15 %", "17 %", "19,5 %", "25 %"], "c": 2, "w": "Нормално – 20,9 %; под 19,5 % влизане без изолиращ апарат не се допуска."}, {"q": "Къде се измерва атмосферата преди влизане?", "o": ["само при отвора", "само на дъното", "от работника, след като влезе", "отвън, със сонда, на няколко нива – горе, в средата и на дъното"], "c": 3, "w": "Тежките газове (напр. H₂S) се събират на дъното, леките – в горната част."}, {"q": "Измерването преди влизане е в норма. Какво следва?", "o": ["атмосферата се следи непрекъснато и се измерва отново след всяко прекъсване", "атмосферата е безопасна до края на смяната", "не са нужни повече измервания", "проверява се отново само при миризма"], "c": 0, "w": "Самата работа (разтворители, заваряване, утайки) променя атмосферата."}, {"q": "Кое твърдение за сероводорода (H₂S) е вярно?", "o": ["по-лек е от въздуха и се събира под тавана", "винаги се разпознава по миризмата", "по-тежък е от въздуха и при високи концентрации парализира обонянието", "не е запалим"], "c": 2, "w": "Изчезването на мириса не означава, че газът е изчезнал."}, {"q": "Кое от изброените представлява изолиране на тръбопровод, свързан с резервоара?", "o": ["затваряне на един кран", "поставяне на табела на крана", "устно уведомяване на оператора", "поставяне на заглушка или разединяване на линията"], "c": 3, "w": "Затворен кран може да пропусне или да бъде отворен; заглушката е сигурна преграда."}, {"q": "Работник се чувства неразположен в деня, в който трябва да влезе. Какво трябва да направи?", "o": ["да влезе, но да работи по-кратко", "да съобщи на отговорника и да не влиза", "да влезе с респиратор", "да приеме обезболяващо и да влезе"], "c": 1, "w": "Неразположението намалява поносимостта и способността за самоспасяване."}, {"q": "Какво средство за защита на дишането се използва при недостиг на кислород?", "o": ["филтриращ респиратор", "противопрахова маска", "изолиращ дихателен апарат", "мокра кърпа"], "c": 2, "w": "Филтърът пречиства въздуха, но не добавя кислород."}, {"q": "Кое е задължение на наблюдаващия?", "o": ["остава на входа, поддържа връзка с влизащия и не влиза да спасява", "може да изпълнява друга работа наблизо", "влиза веднага при проблем", "може да се отдалечи за кратко, ако влизащият е опитен"], "c": 0, "w": "Наблюдаващият е връзката към спасяването – ако влезе, жертвите стават две."}, {"q": "Работникът вътре престава да отговаря. Какво прави наблюдаващият първо?", "o": ["влиза да провери какво се е случило", "изчаква няколко минути", "изпраща колега да слезе", "вдига тревога (спасителна група, 112) и опитва изтегляне отвън с лебедка или въже"], "c": 3, "w": "Голяма част от загиналите са опитали да спасят колега без защита."}, {"q": "Работата в резервоара се извършва от външна фирма. Кой издава разрешението за влизане?", "o": ["предприятието (възложителят), след инструктаж на външните работници", "не е необходимо – отговорността е на фирмата", "разрешението се заменя от договора", "бригадирът на фирмата, устно"], "c": 0, "w": "ЗЗБУТ, чл. 18 – координация; Наредба РД-07-2, чл. 11, ал. 1, т. 3 – инструктаж на външни работници."}, {"q": "Материалът в силоз е засядал (образувал е свод). Кое действие е правилно?", "o": ["работник стъпва върху материала и го разбива с щанга", "засядането се разбива отвън; влизане – само като крайна мярка, с разрешение, заключено разтоварване и обтегнато спасително въже", "пуска се разтоварването, докато работникът е вътре", "влиза се без въже, за да е по-подвижен"], "c": 1, "w": "Сводът може да се срути внезапно – засипаният човек не може да бъде изтеглен с въже."}];
+const L=["а","б","в","г"]; let i=0,a=Array(Q.length).fill(null);
+const e=x=>document.getElementById(x);
+function render(){
+ e("count").textContent=`Въпрос ${i+1} от ${Q.length}`;
+ e("bar").style.width=`${((i+1)/Q.length)*100}%`;
+ e("q").textContent=Q[i].q; e("opts").innerHTML="";
+ Q[i].o.forEach((t,n)=>{let b=document.createElement("button");b.className="opt"+(a[i]===n?" sel":"");b.textContent=`${L[n]}) ${t}`;b.onclick=()=>{a[i]=n;render()};e("opts").appendChild(b)});
+ e("prev").disabled=i===0;e("next").disabled=a[i]===null;e("next").textContent=i===Q.length-1?"Завърши теста":"Напред";
+}
+e("prev").onclick=()=>{if(i>0){i--;render()}};
+e("next").onclick=()=>{if(a[i]===null)return;if(i<Q.length-1){i++;render()}else finish()};
+function finish(){
+ let good=Q.reduce((s,q,n)=>s+(a[n]===q.c),0),bad=Q.length-good,p=Math.round(good/Q.length*100),pass=good>=12;
+ e("quiz").classList.add("hidden");e("result").classList.remove("hidden");
+ e("status").textContent=pass?"ИЗДЪРЖАЛ":"НЕИЗДЪРЖАЛ";e("status").className="status "+(pass?"pass":"fail");
+ e("big").textContent=`${good} / ${Q.length}`;e("pct").textContent=`${p}% верни отговори`;
+ e("good").textContent=good;e("bad").textContent=bad;e("per").textContent=p+"%";e("review").innerHTML="";
+ if(bad===0){e("review").innerHTML='<div class="item"><div class="right">Всички отговори са верни.</div></div>'}
+ else Q.forEach((q,n)=>{if(a[n]!==q.c){let d=document.createElement("div");d.className="item";d.innerHTML=`<div class="rq">${n+1}. ${q.q}</div><div class="yours">Ваш отговор: ${L[a[n]]}) ${q.o[a[n]]}</div><div class="right">Верен отговор: ${L[q.c]}) ${q.o[q.c]}</div><div class="why">${q.w}</div>`;e("review").appendChild(d)}});
+ window.scrollTo({top:0,behavior:"smooth"});
+}
+e("again").onclick=()=>{i=0;a=Array(Q.length).fill(null);e("result").classList.add("hidden");e("quiz").classList.remove("hidden");render();window.scrollTo({top:0,behavior:"smooth"})};
+render();
+</script>
+</body></html>
